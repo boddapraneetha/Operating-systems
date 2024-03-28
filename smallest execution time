@@ -1,0 +1,47 @@
+#include <stdio.h>
+
+#define MAX_PROCESSES 10
+
+struct Process {
+    int id;
+    int execution_time;
+};
+
+void executeProcess(struct Process *process) {
+    printf("Executing Process %d\n", process->id);
+    // Simulate execution time
+    for (int i = 0; i < process->execution_time; i++) {
+        printf("Process %d: %d/%d\n", process->id, i+1, process->execution_time);
+    }
+    printf("Process %d finished execution.\n", process->id);
+}
+
+int main() {
+    struct Process processes[MAX_PROCESSES] = {
+        {1, 8},  // Process ID 1 with execution time 8
+        {2, 4},  // Process ID 2 with execution time 4
+        {3, 6}   // Process ID 3 with execution time 6
+        // Add more processes as needed
+    };
+
+    int num_processes = 3; // Update this with the actual number of processes
+
+    // Schedule processes
+    for (int i = 0; i < num_processes; i++) {
+        // Find the process with the smallest execution time
+        int min_index = 0;
+        for (int j = 1; j < num_processes; j++) {
+            if (processes[j].execution_time < processes[min_index].execution_time) {
+                min_index = j;
+            }
+        }
+
+        // Execute the process with the smallest execution time
+        executeProcess(&processes[min_index]);
+
+        // Update execution time of the executed process
+        processes[min_index].execution_time = 999; // A large number to mark it as completed
+    }
+
+    return 0;
+}
