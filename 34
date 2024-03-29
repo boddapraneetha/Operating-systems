@@ -1,0 +1,64 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_RECORDS 100
+
+// Structure to represent a record
+typedef struct {
+    int record_number;
+    char data[100];
+} Record;
+
+// Function to read records sequentially till a specific record
+void readRecord(Record records[], int record_number) {
+    printf("Reading records from 1 to %d:\n", record_number);
+    for (int i = 0; i < record_number; ++i) {
+        printf("Record %d: %s\n", records[i].record_number, records[i].data);
+    }
+}
+
+int main() {
+    Record records[MAX_RECORDS];
+    int total_records;
+
+    // Reading total number of records
+    printf("Enter total number of records: ");
+    scanf("%d", &total_records);
+
+    // Reading records data
+    for (int i = 0; i < total_records; ++i) {
+        printf("Enter data for record %d: ", i + 1);
+        scanf(" %[^\n]s", records[i].data);
+        records[i].record_number = i + 1;
+    }
+
+    // Menu-driven simulation
+    int choice;
+    do {
+        printf("\n1. Read a record\n");
+        printf("2. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                // Reading a specific record
+                int record_number;
+                printf("Enter record number to read: ");
+                scanf("%d", &record_number);
+                if (record_number > 0 && record_number <= total_records) {
+                    readRecord(records, record_number);
+                } else {
+                    printf("Invalid record number!\n");
+                }
+                break;
+            case 2:
+                printf("Exiting...\n");
+                break;
+            default:
+                printf("Invalid choice! Please try again.\n");
+        }
+    } while (choice != 2);
+
+    return 0;
+}
