@@ -1,0 +1,80 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_REQUESTS 100
+
+// Function to swap two integers
+void swap(int *a, int *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+// Function to sort disk requests in ascending order
+void sortRequests(int requests[], int size) {
+    for (int i = 0; i < size - 1; ++i) {
+        for (int j = 0; j < size - i - 1; ++j) {
+            if (requests[j] > requests[j + 1]) {
+                swap(&requests[j], &requests[j + 1]);
+            }
+        }
+    }
+}
+
+// Function to simulate C-SCAN disk scheduling algorithm
+int simulateCSCAN(int requests[], int size, int head) {
+    int seek_time = 0;
+    int index = 0;
+
+    // Sorting requests in ascending order
+    sortRequests(requests, size);
+
+    // Finding the index where head is located
+    while (index < size && requests[index] < head) {
+        ++index;
+    }
+
+    // Moving the head to the end while servicing requests
+    for (int i = index; i < size; ++i) {
+        seek_time += abs(requests[i] - head);
+        head = requests[i];
+    }
+
+    // Servicing requests from the beginning of the disk
+    seek_time += abs(head - 0);
+    head = 0;
+
+    // Moving the head to the end while servicing requests
+    for (int i = 0; i < index; ++i) {
+        seek_time += abs(requests[i] - head);
+        head = requests[i];
+    }
+
+    return seek_time;
+}
+
+int main() {
+    int requests[MAX_REQUESTS], size, head;
+
+    // Reading total number of disk requests
+    printf("Enter total number of disk requests: ");
+    scanf("%d", &size);
+
+    // Reading disk requests
+    printf("Enter the disk requests:\n");
+    for (int i = 0; i < size; ++i) {
+        scanf("%d", &requests[i]);
+    }
+
+    // Reading current position of disk head
+    printf("Enter current position of disk head: ");
+    scanf("%d", &head);
+
+    // Simulating C-SCAN algorithm and calculating total seek time
+    int seek_time = simulateCSCAN(requests, size, head);
+
+    // Displaying total seek time
+    printf("Total seek time using C-SCAN: %d\n", seek_time);
+
+    return 0;
+}
