@@ -1,0 +1,68 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Structure to represent a disk block
+typedef struct Block {
+    int block_number;
+    char data[100];
+    struct Block* next;
+} Block;
+
+// Structure to represent a file
+typedef struct {
+    Block* first_block;
+    Block* last_block;
+} File;
+
+// Function to create a new block
+Block* createBlock(int block_number) {
+    Block* new_block = (Block*)malloc(sizeof(Block));
+    new_block->block_number = block_number;
+    new_block->next = NULL;
+    return new_block;
+}
+
+// Function to add a block to the end of the file
+void addBlockToFile(File* file, int block_number) {
+    Block* new_block = createBlock(block_number);
+    if (file->first_block == NULL) {
+        file->first_block = new_block;
+        file->last_block = new_block;
+    } else {
+        file->last_block->next = new_block;
+        file->last_block = new_block;
+    }
+}
+
+// Function to read data from a specific block
+void readBlock(Block* block) {
+    printf("Data in block %d: %s\n", block->block_number, block->data);
+}
+
+int main() {
+    File file;
+    file.first_block = NULL;
+    file.last_block = NULL;
+
+    // Adding blocks to the file
+    addBlockToFile(&file, 1);
+    addBlockToFile(&file, 2);
+    addBlockToFile(&file, 3);
+
+    // Reading data from blocks
+    Block* current_block = file.first_block;
+    while (current_block != NULL) {
+        readBlock(current_block);
+        current_block = current_block->next;
+    }
+
+    // Freeing allocated memory
+    current_block = file.first_block;
+    while (current_block != NULL) {
+        Block* temp = current_block;
+        current_block = current_block->next;
+        free(temp);
+    }
+
+    return 0;
+}
