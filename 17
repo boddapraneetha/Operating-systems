@@ -1,0 +1,104 @@
+#include <stdio.h>
+
+#define MAX_PROCESSES 5
+#define MAX_RESOURCES 3
+
+int available[MAX_RESOURCES];
+int max[MAX_PROCESSES][MAX_RESOURCES];
+int allocation[MAX_PROCESSES][MAX_RESOURCES];
+int need[MAX_PROCESSES][MAX_RESOURCES];
+
+int request_resources(int pid, int request[]) {
+    // Step 1: Check if the request is within the need
+    for (int i = 0; i < MAX_RESOURCES; i++) {
+        if (request[i] > need[pid][i]) {
+            printf("Process %d exceeded its maximum claim.\n", pid);
+            return -1;
+        }
+    }
+
+    // Step 2: Check if the request is within the available resources
+    for (int i = 0; i < MAX_RESOURCES; i++) {
+        if (request[i] > available[i]) {
+            printf("Insufficient resources available.\n");
+            return -1;
+        }
+    }
+
+    // Step 3: Simulate the allocation
+    for (int i = 0; i < MAX_RESOURCES; i++) {
+        available[i] -= request[i];
+        allocation[pid][i] += request[i];
+        need[pid][i] -= request[i];
+    }
+
+    // Step 4: Check if the system is in a safe state
+    // Implementation of the Banker's algorithm
+
+    return 0;
+}
+
+void release_resources(int pid, int release[]) {
+    // Release allocated resources
+    for (int i = 0; i < MAX_RESOURCES; i++) {
+        available[i] += release[i];
+        allocation[pid][i] -= release[i];
+        need[pid][i] += release[i];
+    }
+}
+
+void init_data() {
+    // Initialize available resources
+    printf("Enter the number of available resources:\n");
+    for (int i = 0; i < MAX_RESOURCES; i++) {
+        scanf("%d", &available[i]);
+    }
+
+    // Initialize maximum resources
+    printf("Enter the maximum resources required by each process:\n");
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+        for (int j = 0; j < MAX_RESOURCES; j++) {
+            scanf("%d", &max[i][j]);
+        }
+    }
+
+    // Initialize allocation and need
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+        for (int j = 0; j < MAX_RESOURCES; j++) {
+            allocation[i][j] = 0;
+            need[i][j] = max[i][j];
+        }
+    }
+}
+
+int main() {
+    int pid, request[MAX_RESOURCES], release[MAX_RESOURCES];
+
+    init_data();
+
+    // Example: Process requests resources
+    printf("Enter process ID requesting resources: ");
+    scanf("%d", &pid);
+    printf("Enter the resources requested: ");
+    for (int i = 0; i < MAX_RESOURCES; i++) {
+        scanf("%d", &request[i]);
+    }
+
+    if (request_resources(pid, request) == -1) {
+        printf("Request cannot be granted.\n");
+    } else {
+        printf("Request granted.\n");
+    }
+
+    // Example: Process releases resources
+    printf("Enter process ID releasing resources: ");
+    scanf("%d", &pid);
+    printf("Enter the resources to release: ");
+    for (int i = 0; i < MAX_RESOURCES; i++) {
+        scanf("%d", &release[i]);
+    }
+
+    release_resources(pid, release);
+
+    return 0;
+}
