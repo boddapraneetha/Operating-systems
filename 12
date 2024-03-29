@@ -1,0 +1,75 @@
+#include <pthread.h>
+#include <stdio.h>
+#include <unistd.h>
+
+#define PHILOSOPHER_COUNT 5
+
+pthread_mutex_t forks[PHILOSOPHER_COUNT];
+pthread_t philosophers[PHILOSOPHER_COUNT];
+
+void* philosopher(void* num);
+void take_fork(int);
+void put_fork(int);
+void test(int);
+
+int state[PHILOSOPHER_COUNT];
+enum { THINKING, HUNGRY, EATING } PHILOSOPHER_STATE;
+
+int main() {
+    int i;
+    for (i = 0; i < PHILOSOPHER_COUNT; i++) {
+        pthread_mutex_init(&forks[i], NULL);
+    }
+
+    for (i = 0; i < PHILOSOPHER_COUNT; i++) {
+        pthread_create(&philosophers[i], NULL, philosopher, (void*)(size_t)i);
+    }
+
+    for (i = 0; i < PHILOSOPHER_COUNT; i++) {
+        pthread_join(philosophers[i], NULL);
+    }
+
+    return 0;
+}
+
+void* philosopher(void* num) {
+    int* i = (int*)num;
+    while (1) {
+        printf("Philosopher %d is thinking.\n", *i);
+        sleep(1);
+        take_fork(*i);
+        sleep(0); // Eat for a bit
+        put_fork(*i);
+    }
+}
+
+void take_fork(int philosopher_number) {
+    pthread_mutex_lock(&forks[philosopher_number]);
+    state[philosopher_number] = HUNGRY;
+    printf("Philosopher %d is hungry.\n", philosopher_number);
+
+    // Try to grab both forks (or wait if not possible)
+    test(philosopher_number);
+    pthread_mutex_unlock(&forks[philosopher_number]);
+    // If unable to eat, philosopher waits here
+}
+
+void put_fork(int philosopher_number) {
+    pthread_mutex_lock(&forks[philosopher_number]);
+    state[philosopher_number] = THINKING;
+
+    // Put down forks and let neighbors try to eat
+    test((philosopher_number + 4) % PHILOSOPHER_COUNT); // Try left
+    test((philosopher_number + 1) % PHILOSOPHER_COUNT); // Try right
+    pthread_mutex_unlock(&forks[philosopher_number]);
+}
+
+void test(int philosopher_number) {
+    if (state[(philosopher_number + 4) % PHILOSOPHER_COUNT] != EATING &&
+        state[(philosopher_number + 1) % PHILOSOPHER_COUNT] != EATING &&
+        state[philosopher_number] == HUNGRY) {
+        state[philosopher_number] = EATING;
+        sleep(2);
+        printf("Philosopher %d is eating.\n", philosopher_number);
+    }
+}
