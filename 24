@@ -1,0 +1,53 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <string.h>
+
+int main() {
+    int fd; // File descriptor
+    char *filePath = "example.txt";
+    char *text = "Hello, UNIX System Calls!\n";
+    ssize_t nr;
+
+    // Step 1: Open (or create) a file
+    fd = open(filePath, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+    if (fd == -1) {
+        perror("Error opening file");
+        return EXIT_FAILURE;
+    }
+
+    // Step 2: Write text to the file
+    nr = write(fd, text, strlen(text));
+    if (nr == -1) {
+        close(fd);
+        perror("Error writing to file");
+        return EXIT_FAILURE;
+    }
+
+    // Step 3: Seek to the beginning of the file
+    if (lseek(fd, 0, SEEK_SET) == -1) {
+        close(fd);
+        perror("Error seeking in file");
+        return EXIT_FAILURE;
+    }
+
+    // Step 4: Read from the file and display
+    char buffer[1024];
+    nr = read(fd, buffer, sizeof(buffer) - 1);
+    if (nr == -1) {
+        close(fd);
+        perror("Error reading from file");
+        return EXIT_FAILURE;
+    }
+    buffer[nr] = '\0'; // Null-terminate the string read
+    printf("File Content: %s", buffer);
+
+    // Step 5: Close the file
+    if (close(fd) == -1) {
+        perror("Error closing file");
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
+}
