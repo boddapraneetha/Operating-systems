@@ -1,0 +1,68 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_BLOCKS 100
+
+// Structure to represent a block of the file
+typedef struct {
+    int block_number;
+    char data[100];
+} Block;
+
+// Function to read data from a specific block
+void readBlock(Block blocks[], int block_number) {
+    printf("Data in block %d: %s\n", block_number, blocks[block_number - 1].data);
+}
+
+int main() {
+    Block blocks[MAX_BLOCKS];
+    int total_blocks;
+
+    // Reading total number of blocks
+    printf("Enter total number of blocks: ");
+    scanf("%d", &total_blocks);
+
+    // Reading data for each block
+    for (int i = 0; i < total_blocks; ++i) {
+        printf("Enter data for block %d: ", i + 1);
+        scanf(" %[^\n]s", blocks[i].data);
+        blocks[i].block_number = i + 1;
+    }
+
+    // Index block simulation
+    printf("\nIndex Block:\n");
+    printf("Block Number\tPointer\n");
+    for (int i = 0; i < total_blocks; ++i) {
+        printf("%d\t\t%d\n", i + 1, blocks[i].block_number);
+    }
+
+    // Menu-driven simulation
+    int choice;
+    do {
+        printf("\n1. Read data from a block\n");
+        printf("2. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                // Reading data from a specific block
+                int block_number;
+                printf("Enter block number to read: ");
+                scanf("%d", &block_number);
+                if (block_number > 0 && block_number <= total_blocks) {
+                    readBlock(blocks, block_number);
+                } else {
+                    printf("Invalid block number!\n");
+                }
+                break;
+            case 2:
+                printf("Exiting...\n");
+                break;
+            default:
+                printf("Invalid choice! Please try again.\n");
+        }
+    } while (choice != 2);
+
+    return 0;
+}
