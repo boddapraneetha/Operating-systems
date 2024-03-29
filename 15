@@ -1,0 +1,39 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_FILES_PER_DIR 5
+#define MAX_FILENAME_LENGTH 20
+
+struct Directory {
+    char name[MAX_FILENAME_LENGTH];
+    char files[MAX_FILES_PER_DIR][MAX_FILENAME_LENGTH];
+};
+
+struct Directory directories[MAX_FILES_PER_DIR];
+int directoryCount = 0;
+
+void createDirectory(const char *name) {
+    strcpy(directories[directoryCount++].name, name);
+}
+
+void createFile(const char *dirName, const char *filename) {
+    for (int i = 0; i < directoryCount; i++) {
+        if (strcmp(directories[i].name, dirName) == 0) {
+            strcpy(directories[i].files[directories[i].fileCount++], filename);
+            printf("File '%s' created in directory '%s'.\n", filename, dirName);
+            return;
+        }
+    }
+    printf("Directory '%s' not found.\n", dirName);
+}
+
+int main() {
+    createDirectory("Dir1");
+    createDirectory("Dir2");
+
+    createFile("Dir1", "file1.txt");
+    createFile("Dir2", "file2.txt");
+
+    return 0;
+}
