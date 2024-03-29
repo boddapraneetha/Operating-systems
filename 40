@@ -1,0 +1,54 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        printf("Usage: %s <filename>\n", argv[0]);
+        return 1;
+    }
+
+    struct stat file_stat;
+
+    // Retrieve file information
+    if (stat(argv[1], &file_stat) == -1) {
+        perror("stat");
+        return 1;
+    }
+
+    // Check file type
+    if (S_ISREG(file_stat.st_mode))
+        printf("%s is a regular file.\n", argv[1]);
+    else if (S_ISDIR(file_stat.st_mode))
+        printf("%s is a directory.\n", argv[1]);
+    else if (S_ISLNK(file_stat.st_mode))
+        printf("%s is a symbolic link.\n", argv[1]);
+    else
+        printf("%s is of unknown file type.\n", argv[1]);
+
+    // Check file access permissions for owner, group, and others
+    printf("File access permissions:\n");
+    printf("Owner: %s\n", (file_stat.st_mode & S_IRUSR) ? "Read" : "-");
+    printf("       %s\n", (file_stat.st_mode & S_IWUSR) ? "Write" : "-");
+    printf("       %s\n", (file_stat.st_mode & S_IXUSR) ? "Execute" : "-");
+    printf("Group: %s\n", (file_stat.st_mode & S_IRGRP) ? "Read" : "-");
+    printf("       %s\n", (file_stat.st_mode & S_IWGRP) ? "Write" : "-");
+    printf("       %s\n", (file_stat.st_mode & S_IXGRP) ? "Execute" : "-");
+    printf("Others: %s\n", (file_stat.st_mode & S_IROTH) ? "Read" : "-");
+    printf("        %s\n", (file_stat.st_mode & S_IWOTH) ? "Write" : "-");
+    printf("        %s\n", (file_stat.st_mode & S_IXOTH) ? "Execute" : "-");
+
+    // Check if the current user falls under owner, group, or others category
+    uid_t uid = getuid();
+    gid_t gid = getgid();
+    printf("Current user:\n");
+    if (uid == file_stat.st_uid)
+        printf("Owner of the file.\n");
+    else if (gid == file_stat.st_gid)
+        printf("Member of the file's group.\n");
+    else
+        printf("Others.\n");
+
+    return 0;
+}
