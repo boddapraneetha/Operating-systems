@@ -1,0 +1,84 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_REQUESTS 100
+
+// Function to swap two integers
+void swap(int *a, int *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+// Function to sort disk requests in ascending order
+void sortRequests(int requests[], int size) {
+    for (int i = 0; i < size - 1; ++i) {
+        for (int j = 0; j < size - i - 1; ++j) {
+            if (requests[j] > requests[j + 1]) {
+                swap(&requests[j], &requests[j + 1]);
+            }
+        }
+    }
+}
+
+// Function to simulate SCAN disk scheduling algorithm
+int simulateSCAN(int requests[], int size, int head, int direction) {
+    int seek_time = 0;
+    int index = 0;
+
+    // Sorting requests in ascending order
+    sortRequests(requests, size);
+
+    // Finding the index where head is located
+    while (index < size && requests[index] < head) {
+        ++index;
+    }
+
+    // If direction is left, we need to reverse the requests array
+    if (direction == -1) {
+        for (int i = 0; i < index / 2; ++i) {
+            swap(&requests[i], &requests[index - i - 1]);
+        }
+    }
+
+    // Moving the head in the direction until reaching the end
+    for (int i = index; i < size; ++i) {
+        seek_time += abs(requests[i] - head);
+        head = requests[i];
+    }
+
+    // Moving the head to the end
+    seek_time += abs(head - (direction == 1 ? 0 : 199));
+
+    return seek_time;
+}
+
+int main() {
+    int requests[MAX_REQUESTS], size, head, direction;
+
+    // Reading total number of disk requests
+    printf("Enter total number of disk requests: ");
+    scanf("%d", &size);
+
+    // Reading disk requests
+    printf("Enter the disk requests:\n");
+    for (int i = 0; i < size; ++i) {
+        scanf("%d", &requests[i]);
+    }
+
+    // Reading current position of disk head
+    printf("Enter current position of disk head: ");
+    scanf("%d", &head);
+
+    // Reading direction of movement (1 for right, -1 for left)
+    printf("Enter direction of movement (1 for right, -1 for left): ");
+    scanf("%d", &direction);
+
+    // Simulating SCAN algorithm and calculating total seek time
+    int seek_time = simulateSCAN(requests, size, head, direction);
+
+    // Displaying total seek time
+    printf("Total seek time using SCAN: %d\n", seek_time);
+
+    return 0;
+}
