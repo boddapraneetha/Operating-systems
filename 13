@@ -1,0 +1,97 @@
+#include <stdio.h>
+#define MAX_BLOCKS 5
+#define MAX_PROCESSES 4
+
+// Memory blocks and process sizes (Example values)
+int memoryBlocks[MAX_BLOCKS] = {100, 500, 200, 300, 600};
+int processSizes[MAX_PROCESSES] = {212, 417, 112, 426};
+
+void firstFit(int memory[], int processes[]) {
+    int allocated[MAX_PROCESSES];
+
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+        allocated[i] = -1; // Initialize as unallocated
+        for (int j = 0; j < MAX_BLOCKS; j++) {
+            if (memory[j] >= processes[i]) {
+                // Allocate block j to process i
+                allocated[i] = j;
+                memory[j] -= processes[i];
+                break;
+            }
+        }
+    }
+
+    printf("First Fit Allocation:\n");
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+        if (allocated[i] != -1)
+            printf("Process %d allocated to memory block %d\n", i, allocated[i]);
+        else
+            printf("Process %d not allocated\n", i);
+    }
+}
+
+void bestFit(int memory[], int processes[]) {
+    int allocated[MAX_PROCESSES];
+
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+        int bestIdx = -1;
+        for (int j = 0; j < MAX_BLOCKS; j++) {
+            if (memory[j] >= processes[i] && (bestIdx == -1 || memory[j] < memory[bestIdx])) {
+                bestIdx = j;
+            }
+        }
+        if (bestIdx != -1) {
+            allocated[i] = bestIdx;
+            memory[bestIdx] -= processes[i];
+        } else {
+            allocated[i] = -1;
+        }
+    }
+
+    printf("Best Fit Allocation:\n");
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+        if (allocated[i] != -1)
+            printf("Process %d allocated to memory block %d\n", i, allocated[i]);
+        else
+            printf("Process %d not allocated\n", i);
+    }
+}
+
+void worstFit(int memory[], int processes[]) {
+    int allocated[MAX_PROCESSES];
+
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+        int worstIdx = -1;
+        for (int j = 0; j < MAX_BLOCKS; j++) {
+            if (memory[j] >= processes[i] && (worstIdx == -1 || memory[j] > memory[worstIdx])) {
+                worstIdx = j;
+            }
+        }
+        if (worstIdx != -1) {
+            allocated[i] = worstIdx;
+            memory[worstIdx] -= processes[i];
+        } else {
+            allocated[i] = -1;
+        }
+    }
+
+    printf("Worst Fit Allocation:\n");
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+        if (allocated[i] != -1)
+            printf("Process %d allocated to memory block %d\n", i, allocated[i]);
+        else
+            printf("Process %d not allocated\n", i);
+    }
+}
+
+int main() {
+    int memory1[MAX_BLOCKS] = {100, 500, 200, 300, 600};
+    int memory2[MAX_BLOCKS] = {100, 500, 200, 300, 600};
+    int memory3[MAX_BLOCKS] = {100, 500, 200, 300, 600};
+
+    firstFit(memory1, processSizes);
+    bestFit(memory2, processSizes);
+    worstFit(memory3, processSizes);
+
+    return 0;
+}
