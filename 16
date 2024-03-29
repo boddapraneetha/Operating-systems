@@ -1,0 +1,122 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define FILENAME "employee_data.dat"
+#define RECORD_SIZE sizeof(struct Employee)
+
+// Employee structure
+struct Employee {
+    int id;
+    char name[50];
+    float salary;
+};
+
+// Function prototypes
+void addEmployee();
+void displayAllEmployees();
+void updateEmployeeSalary(int empId, float newSalary);
+
+int main() {
+    int choice;
+
+    while (1) {
+        printf("\nEmployee Management System\n");
+        printf("1. Add Employee\n");
+        printf("2. Display All Employees\n");
+        printf("3. Update Employee Salary\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                addEmployee();
+                break;
+            case 2:
+                displayAllEmployees();
+                break;
+            case 3:
+                {
+                    int id;
+                    float salary;
+                    printf("Enter Employee ID: ");
+                    scanf("%d", &id);
+                    printf("Enter New Salary: ");
+                    scanf("%f", &salary);
+                    updateEmployeeSalary(id, salary);
+                }
+                break;
+            case 4:
+                printf("Exiting program.\n");
+                exit(0);
+            default:
+                printf("Invalid choice. Please enter a valid option.\n");
+        }
+    }
+
+    return 0;
+}
+
+// Function to add an employee to the file
+void addEmployee() {
+    struct Employee emp;
+    FILE *file = fopen(FILENAME, "ab");
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    printf("Enter Employee ID: ");
+    scanf("%d", &emp.id);
+    printf("Enter Employee Name: ");
+    scanf("%s", emp.name);
+    printf("Enter Employee Salary: ");
+    scanf("%f", &emp.salary);
+
+    fwrite(&emp, RECORD_SIZE, 1, file);
+    fclose(file);
+
+    printf("Employee added successfully.\n");
+}
+
+// Function to display all employees from the file
+void displayAllEmployees() {
+    struct Employee emp;
+    FILE *file = fopen(FILENAME, "rb");
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    printf("Employee Details:\n");
+    while (fread(&emp, RECORD_SIZE, 1, file) == 1) {
+        printf("ID: %d, Name: %s, Salary: %.2f\n", emp.id, emp.name, emp.salary);
+    }
+
+    fclose(file);
+}
+
+// Function to update employee salary based on ID
+void updateEmployeeSalary(int empId, float newSalary) {
+    struct Employee emp;
+    FILE *file = fopen(FILENAME, "r+b");
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    while (fread(&emp, RECORD_SIZE, 1, file) == 1) {
+        if (emp.id == empId) {
+            emp.salary = newSalary;
+            fseek(file, -RECORD_SIZE, SEEK_CUR);
+            fwrite(&emp, RECORD_SIZE, 1, file);
+            fclose(file);
+            printf("Employee salary updated successfully.\n");
+            return;
+        }
+    }
+
+    fclose(file);
+    printf("Employee ID not found.\n");
+}
