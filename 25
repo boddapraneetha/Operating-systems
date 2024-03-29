@@ -1,0 +1,64 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <dirent.h>
+
+int main(int argc, char *argv[]) {
+    int fd;
+    struct stat fileStat;
+    DIR *d;
+    struct dirent *dir;
+
+    // Ensure correct argument usage
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <file_or_directory>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    // Attempt to open the file or directory
+    fd = open(argv[1], O_RDONLY);
+    if (fd == -1) {
+        perror("Error opening file");
+        return EXIT_FAILURE;
+    }
+
+    // Example of using fcntl - get current flags
+    int flags = fcntl(fd, F_GETFL);
+    if (flags == -1) {
+        perror("fcntl failed");
+        close(fd);
+        return EXIT_FAILURE;
+    }
+    printf("Current flags: %d\n", flags);
+
+    // Using lseek to seek to the start of the file (no-op for directories)
+    if (lseek(fd, 0, SEEK_SET) == -1) {
+        perror("lseek failed");
+        // This might fail for directories, but that's expected
+    }
+
+    // Using stat to get file information
+    if (fstat(fd, &fileStat) < 0) {
+        perror("Error getting the file stats");
+        close(fd);
+        return EXIT_FAILURE;
+    }
+    printf("File Size: %ld bytes\n", fileStat.st_size);
+
+    // Check if the path is a directory and read its contents
+    if (S_ISDIR(fileStat.st_mode)) {
+        d = opendir(argv[1]);
+        if (d) {
+            printf("Directory contents:\n");
+            while ((dir = readdir(d)) != NULL) {
+                printf("%s\n", dir->d_name);
+            }
+            closedir(d);
+        }
+    }
+
+    close(fd);
+    return EXIT_SUCCESS;
+}
